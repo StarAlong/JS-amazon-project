@@ -33,9 +33,9 @@ export function addToCart (productId) {
                 quantity: 1
             });
         }
+        saveToStorage();
 }
 
-    saveToStorage();
 
 export function removeFromCart(productId) {
     const newCart = [];
