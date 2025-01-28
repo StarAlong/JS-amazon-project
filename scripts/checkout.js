@@ -1,4 +1,4 @@
-import { cart, removeFromCart } from '../data/cart.js';
+import { cart, removeFromCart, updateDeliveryOption } from '../data/cart.js';
 import { products } from '../data/products.js';
 import { formatCurrency } from './utils/money.js';
 import {hello} from 'https://unpkg.com/supersimpledev@1.0.1/hello.esm.js';
@@ -16,11 +16,11 @@ let cartSummaryHTML = '';
 cart.forEach((cartItem) => {
     const productId = cartItem.productId;
 
-    let matchingProudct;
+    let matchingProduct;
 
     products.forEach((product) => {
         if (product.id === productId) {
-            matchingProudct = product;
+            matchingProduct = product;
         }
     });
     
@@ -46,21 +46,21 @@ cart.forEach((cartItem) => {
     cartSummaryHTML += `
 
         <div class="cart-item-container 
-        js-cart-item-container-${matchingProudct.id}">
+        js-cart-item-container-${matchingProduct.id}">
                 <div class="delivery-date">
                 Delivery date: ${dateString}
                 </div>
 
                 <div class="cart-item-details-grid">
                 <img class="product-image"
-                    src="${matchingProudct.image}">
+                    src="${matchingProduct.image}">
 
                 <div class="cart-item-details">
                     <div class="product-name">
-                    ${matchingProudct.name}
+                    ${matchingProduct.name}
                     </div>
                     <div class="product-price">
-                    $${formatCurrency(matchingProudct.priceCents)}
+                    $${formatCurrency(matchingProduct.priceCents)}
                     </div>
                     <div class="product-quantity">
                     <span>
@@ -70,7 +70,7 @@ cart.forEach((cartItem) => {
                         Update
                     </span>
                     <span class="delete-quantity-link link-primary 
-                    js-delete-link" data-product-id="${matchingProudct.id}">
+                    js-delete-link" data-product-id="${matchingProduct.id}">
                         Delete
                     </span>
                     </div>
@@ -80,7 +80,7 @@ cart.forEach((cartItem) => {
                     <div class="delivery-options-title">
                     Choose a delivery option:
                     </div>
-                    ${deliveryOptionsHTML(matchingProudct, cartItem)}
+                    ${deliveryOptionsHTML(matchingProduct, cartItem)}
                     </div>
                     
                 </div>
@@ -89,7 +89,7 @@ cart.forEach((cartItem) => {
     `;
 });
 
-function deliveryOptionsHTML(matchingProudct, cartItem) {
+function deliveryOptionsHTML(matchingProduct, cartItem) {
     let html = '';
 
     deliveryOptions.forEach((deliveryOption) => {
@@ -112,11 +112,13 @@ function deliveryOptionsHTML(matchingProudct, cartItem) {
         cartItem.deliveryOptionId;      
 
         html += `
-            <div class="delivery-option">
+            <div class="delivery-option js-delivery-option"
+            data-product-id="${matchingProduct.id}"
+            data-delivery-option-id="${deliveryOption.id}">
                 <input type="radio"
                     ${isChecked ? 'checked': ''}
                     class="delivery-option-input"
-                    name="delivery-option-${matchingProudct.id}">
+                    name="delivery-option-${matchingProduct.id}">
                 <div>
                     <div class="delivery-option-date">
                     ${dateString}
@@ -146,5 +148,14 @@ document.querySelectorAll('.js-delete-link')
             );
             container.remove();
         });
+    });
+
+document.querySelectorAll('.js-delivery-option')
+    .forEach((element) => {
+        element.addEventListener('click', () => {
+            const {productId, deliveryOptionId} = element.dataset;
+            updateDeliveryOption(productId, deliveryOptionId);
+        });
+
     });
 
